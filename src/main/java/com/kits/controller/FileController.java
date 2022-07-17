@@ -20,6 +20,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.kits.model.Document;
 import com.kits.model.FileUploadResponse;
+import com.kits.model.ResponseFile;
 import com.kits.service.FileService;
 
 @RestController
@@ -45,15 +46,15 @@ public class FileController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
-//		@GetMapping("/files")
-//		public ResponseEntity<List<ResponseFile>> getListFiles() {
-//			List<ResponseFile> files = service.getAllFiles().map(dbFile -> {
-//				String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath().path("/files/")
-//						.path(dbFile.getId()).toUriString();
-//				return new ResponseFile(dbFile.getName(), fileDownloadUri, dbFile.getType(), dbFile.getData().length);
-//			}).collect(Collectors.toList());
-//			return ResponseEntity.status(HttpStatus.OK).body(files);
-//		}
+	@GetMapping("/allfiles")		
+	public ResponseEntity<List<ResponseFile>> getListFiles() {
+		List<ResponseFile> files = service.getAllFiles().map(dbFile -> {
+			String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath().path("/files/downloadfile/")
+					.path(String.valueOf(dbFile.getId())).toUriString();
+			return new ResponseFile(dbFile.getName(), fileDownloadUri, dbFile.getFile().length);
+		}).collect(Collectors.toList());
+		return ResponseEntity.status(HttpStatus.OK).body(files);
+	}
 
 	@GetMapping("/downloadfile/{id}")
 	public ResponseEntity<byte[]> getFile(@PathVariable Integer id) {

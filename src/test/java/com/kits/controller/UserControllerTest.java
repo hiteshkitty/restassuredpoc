@@ -5,19 +5,20 @@ import static io.restassured.RestAssured.given;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Before;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kits.Utils.ExcelUtils;
 import com.kits.base.BaseTest;
 import com.kits.dbutil.DBUtil;
 import com.kits.model.User;
-
-import io.restassured.http.ContentType;
 
 public class UserControllerTest extends BaseTest {
 
@@ -40,17 +41,47 @@ public class UserControllerTest extends BaseTest {
 	@Test
 	public void testCreateUser() throws JsonProcessingException {
 		
-		Map<String, Object> map = new HashMap<>();
-		// You can convert any Object.
+		Object[][] testData = getPostData();
 
-		map.put("firstName", "Raghav");
-		map.put("lastName", "CEO");
+		for (int i = 0; i < testData.length ; i ++)  {
+			Map<String, Object> map = new HashMap<>();
+			// You can convert any Object.
 
-		String json = new ObjectMapper().writeValueAsString(map);
-		System.out.println(json);
+			map.put("firstName", testData[i][0]);
+			map.put("lastName", testData[i][1]);
 
-		given().body(json).contentType("application/json").when().log().all().post("/users/").then().statusCode(200);
+			String json = new ObjectMapper().writeValueAsString(map);
+			System.out.println(json);
+
+			given().body(json).contentType("application/json").when().log().all().post("/users/").then().statusCode(200);
+		}
+//		Map<String, Object> map = new HashMap<>();
+//		// You can convert any Object.
+//
+//		map.put("firstName", "Raghav");
+//		map.put("lastName", "CEO");
+//
+//		String json = new ObjectMapper().writeValueAsString(map);
+//		System.out.println(json);
+//
+//		given().body(json).contentType("application/json").when().log().all().post("/users/").then().statusCode(200);
 		
+	}
+	
+	@DataProvider(name = "input")
+	public Object[][] getPostData() {
+		Object[][] data = null;
+		ExcelUtils xlReader = new ExcelUtils();
+		HashMap<String, ArrayList<Object>> map = xlReader.getExcelData();
+		
+		ArrayList<Object> value = map.get("firstName");
+		data = new Object[value.size()][2];
+
+		for (int i = 0; i < value.size(); i++) {
+			data[i][0]=map.get("firstName").get(i);
+			data[i][1]=map.get("lastName").get(i);
+		}
+		return data;
 	}
 
 	
